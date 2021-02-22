@@ -32,6 +32,7 @@ jobs:
           path: ./Bicep/storage.json
 
   Check-template:
+
     runs-on: ubuntu-20.04
     name: Validate
     needs: Build
@@ -65,4 +66,35 @@ jobs:
         with:
           azcliversion: 2.19.1
           inlineScript: |
-            az deployment group what-if --resource-group ${{ env.AZURE_RG }} --name deploy001 --template-file ./artifactarm/storage.json 
+            az deployment group what-if --resource-group ${{ env.AZURE_RG }} --name whatif001 --template-file ./artifactarm/storage.json 
+
+  Deploy:
+    runs-on: ubuntu-20.04
+    name: Deploy
+    needs: Check-template
+
+    steps:
+      - name: Praparation dossier artefact
+        run: |
+          mkdir artifactarm
+      
+      - name: Récupération de l'artefact json 
+        uses: actions/download-artifact@v2
+        with:
+          name: arm_template
+          path: artifactarm
+      
+      - name: Azure Login
+        uses: Azure/login@v1.1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploiement du template arm
+        uses: azure/arm-deploy@v1
+        with:
+          scope: resourcegroup 
+          subscriptionId: ${{ secrets.AZURE_SUBID }}
+          template: ./artifactarm/storage.json
+          deploymentName: Deploy-001
+          deploymentMode: Incremental
+      
