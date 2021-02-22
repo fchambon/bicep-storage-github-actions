@@ -20,3 +20,13 @@ jobs:
           chmod +x ./bicep
           sudo mv ./bicep /usr/local/bin/bicep
           bicep --help
+
+      - name: Compilation Bicep
+        run: |
+          bicep build ./Bicep/storage.bicep
+
+      - name: ARM template artifact upload
+        uses: actions/upload-artifact@v1
+        with:
+          name: arm_template
+          path: ./Bicep/storage.json
