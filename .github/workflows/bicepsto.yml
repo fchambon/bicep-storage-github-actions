@@ -30,3 +30,38 @@ jobs:
         with:
           name: arm_template
           path: ./Bicep/storage.json
+
+  Check-template:
+    runs-on: ubuntu-20.04
+    name: Validate
+      
+    steps:
+      - name: Praparation dossier artefact
+        run: |
+          mkdir artifactarm
+      
+      - name: Récupération de l'artefact json 
+        uses: actions/download-artifact@v2
+        with:
+          name: arm_template
+          path: artifactarm
+      
+      - name: Azure Login
+        uses: Azure/login@v1.1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Creation du RG et validation template ARM
+        uses: azure/CLI@1.0.4
+        with:
+          azcliversion: 2.19.1
+          inlineScript: |
+            az group create --name ${{ env.AZURE_RG }} --location ${{ env.AZURE_LOC }}
+            az deployment group validate --resource-group ${{ env.AZURE_RG }} --template-file ./artifactarm/storage.json
+
+      - name: What-If template ARM
+        uses: azure/CLI@1.0.4
+        with:
+          azcliversion: 2.19.1
+          inlineScript: |
+            az deployment group what-if --resource-group ${{ env.AZURE_RG }} --name deploy001 --template-file ./artifactarm/storage.json 
