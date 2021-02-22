@@ -1,4 +1,4 @@
-name: Deploiement d'un compte de stockage via template ARM généré avec Bicep!
+name: Deploiement d'un compte de stockage via template ARM généré avec Bicep !
 
 on: workflow_dispatch
 env:
