@@ -1,0 +1,1 @@
+# bicep-storage-github-actions
