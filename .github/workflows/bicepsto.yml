@@ -72,6 +72,8 @@ jobs:
     runs-on: ubuntu-20.04
     name: Deploy
     needs: Check-template
+    environment:
+      name: dev
 
     steps:
       - name: Praparation dossier artefact
@@ -94,7 +96,28 @@ jobs:
         with:
           scope: resourcegroup 
           subscriptionId: ${{ secrets.AZURE_SUBID }}
+          resourceGroupName: ${{ env.AZURE_RG }}
           template: ./artifactarm/storage.json
           deploymentName: Deploy-001
           deploymentMode: Incremental
-      
+  
+  Clean:
+    runs-on: ubuntu-20.04
+    name: Clean
+    needs: Deploy
+    environment:
+      name: dev
+
+    steps:
+      - name: Azure Login
+        uses: Azure/login@v1.1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Suppression RG
+        uses: azure/CLI@1.0.4
+        with:
+          azcliversion: 2.19.1
+          inlineScript: |
+            az group delete --name ${{ env.AZURE_RG }} --yes
+    
