@@ -34,6 +34,7 @@ jobs:
   Check-template:
     runs-on: ubuntu-20.04
     name: Validate
+    needs: Build
       
     steps:
       - name: Praparation dossier artefact
